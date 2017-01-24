@@ -23,3 +23,19 @@ shuffleM n = do {
                 fmap ((:) n1) $ shuffleM $ (take r n) ++ (drop (r+1) n)
              }
 
+--vazoume kai signatures
+makeMaze :: Int -> Int -> Maze
+makeMaze width height =
+
+
+--prepei na diavasoume ton pseudokodika
+kruskal :: Maze -> Maze
+ksukal maze =
+
+
+solvePerfect :: Maze -> (Int,Int) -> (Int, Int) -> [(Int, Int)]
+solvePerfect maze (xs,ys) (xe,ye) =
+
+
+showMaze :: Maze -> [(Int,Int)] -> String
+showMaze maze list = 
