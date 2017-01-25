@@ -30,7 +30,7 @@ makeMaze width height = Maze (fill_cell_list width height)  width height
 fill_cell_list :: Int -> Int -> [(Bool, Bool)]
 fill_cell_list width height = if (height == 1) then (fill_row width) else (fill_row width) ++
     (fill_cell_list width (height-1))
-    
+
 fill_row :: Int -> [(Bool, Bool)]
 fill_row width = if (width == 1) then [(True, True)] else [(True,True)] ++ (fill_row (width-1) )
 
