@@ -45,4 +45,7 @@ fill_row width = if (width == 1) then [(True, True)] else [(True,True)] ++ (fill
 
 
 --showMaze :: Maze -> [(Int,Int)] -> String
---showMaze maze list =
+--showMaze (Maze cells width height) list = (getfirst width)
+
+getfirst :: Int -> String
+getfirst x = if (x== 0) then "+" else "+---" ++ (getfirst (x-1))
