@@ -45,7 +45,14 @@ fill_row width = if (width == 1) then [(True, True)] else [(True,True)] ++ (fill
 
 
 --showMaze :: Maze -> [(Int,Int)] -> String
---showMaze (Maze cells width height) list = (getfirst width)
+--showMaze (Maze cells width height) list = (first_line width) ++ (fillboard height width cells)
 
-getfirst :: Int -> String
-getfirst x = if (x== 0) then "+" else "+---" ++ (getfirst (x-1))
+--fillboard :: Int -> Int -> [(Int, Int)] -> String
+--fillboard y x cells = if (height == 1) then "|" ++ (fst fill_line) ++ "\n" ++ "+" ++ (snd fill_line)
+
+--fill_line :: Int -> (String, String)
+
+--mipos thelei putStr allios to unlines
+--test x = putStr (first_line x) -> auto doueuei me \n
+first_line :: Int -> String
+first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
