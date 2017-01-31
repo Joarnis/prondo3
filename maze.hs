@@ -24,6 +24,7 @@ shuffleM n = do {
              }
 
 --vazoume kai signatures
+--GT? (ponos skon kwlo)
 makeMaze :: Int -> Int -> Maze
 makeMaze width height = Maze (fill_cell_list width height)  width height
 
@@ -36,8 +37,14 @@ fill_row width = if (width == 1) then [(True, True)] else [(True,True)] ++ (fill
 
 
 --prepei na diavasoume ton pseudokodika
+-- !!Set.fromList as opposed to Data.Set, harder, alliws omws prepei na aknw kai import
+
 --kruskal :: Maze -> Maze
---ksukal maze =
+--ksukal Maze =
+
+-- !!Prepei na sizitisoume an ontws tah ftiaksoume data anaparastasi dentrou,
+--(tha voithisei DFS alla kai kruskal) i an aplws tha to antilamvanomaste ws
+--dentro (ligo skatiariko stin ilopoiisi)
 
 
 --solvePerfect :: Maze -> (Int,Int) -> (Int, Int) -> [(Int, Int)]
