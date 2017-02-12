@@ -56,25 +56,18 @@ init_walls width height curr
 	| curr `mod` width < width - 1 = ((curr, curr + 1) : init_walls width height (curr + 1))
 	| otherwise = []
 
---NOT WORKING
 -- Function that replaces a set with a joined set where needed
-join_sets :: Set a -> Set a -> [Set a] -> [Set a]
-join_sets curr_joined_set joined_set sets = if Set.null curr_joined_set then sets
-	else  join_sets (Set.delete (Set.lookupGE curr_joined_set) curr_joined_set) joined_set
-		replace_nth_in_list sets (Set.lookupGE curr_joined_set) joined_set
+join_sets :: [Set Int] -> Int -> Set Int -> [Set Int]
+join_sets [] _ _ = []
+join_sets (x : xs) k joined_set = if Set.member k joined_set then (joined_set : join_sets xs (k + 1) joined_set)
+	else (x : join_sets xs (k + 1) joined_set)
 
--- Function that replaces the nth set of a given list with another and returns that list
-replace_nth_in_list :: [Set a] -> Int -> Set a -> [Set a]
-replace_nth_in_list (x : xs) n new_value = if n == 0 then (new_value : xs) 
-	else (x : replace_nth_in_list xs (n - 1) new_value)
-	
---NOT WORKING
 -- Function that executes the core kruskal algorithm part
---place_walls :: 
---place_walls sets [] = []
---place_walls sets ((ci, cj) : walls) = if Set.notMember ci (sets !! cj) && Set.notMember cj (sets !! ci)
-	--then place_walls (join_sets (Set.union (sets !! ci) (sets !! cj)) sets) walls
-	--else ((ci, cj) : place_walls sets walls)
+place_walls :: [Set Int] -> [(Int, Int)] -> [(Int, Int)]
+place_walls sets [] = []
+place_walls sets ((ci, cj) : walls) = if Set.notMember ci (sets !! cj) && Set.notMember cj (sets !! ci)
+	then place_walls (join_sets sets 0 (Set.union (sets !! ci) (sets !! cj))) walls
+	else ((ci, cj) : place_walls sets walls)
 
 
 --solvePerfect :: Maze -> (Int,Int) -> (Int, Int) -> [(Int, Int)]
