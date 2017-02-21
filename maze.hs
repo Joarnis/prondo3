@@ -76,7 +76,7 @@ alter_maze_cell :: Maze -> Int -> Int -> Bool -> Maze
 alter_maze_cell maze pos rw_or_dw new_value = Maze (alter_cell_list (cells maze) pos rw_or_dw new_value) (width maze) (height maze)
 
 alter_cell_list :: [(Bool, Bool)] -> Int -> Int -> Bool -> [(Bool, Bool)]
--- Function that returns an altered maze cell list (alter_maze_cell helper) 
+-- Function that returns an altered maze cell list (alter_maze_cell helper)
 alter_cell_list [] _ _ _ = []
 alter_cell_list ((rw, dw) : cells) pos 0 new_value = if pos == 0
 	then ((new_value, dw) : alter_cell_list cells (pos - 1) 0 new_value)
@@ -105,29 +105,29 @@ get_actions maze pos = up_action maze pos
 up_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
 up_action maze (x, y) = if x == 0 then [] else
-	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False) 
+	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False)
 		|| ((cells maze) !! (width maze * (x - 1) + y)) == (False, False)
 	then ((x - 1, y) : left_action maze (x, y))
 	else (left_action maze (x, y))
-	
+
 left_action :: Maze -> (Int, Int) -> [(Int, Int)]
--- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)  
+-- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
 left_action maze (x, y) = if y `mod` (width maze) == 0 then [] else
-	if ((cells maze) !! (width maze * x + y - 1)) == (False, True) 
+	if ((cells maze) !! (width maze * x + y - 1)) == (False, True)
 		|| ((cells maze) !! (width maze * x + y - 1)) == (False, False)
 	then ((x, y - 1) : right_action maze (x, y))
 	else (right_action maze (x, y))
-	
+
 right_action :: Maze -> (Int, Int) -> [(Int, Int)]
--- Function that returns the position of the cell right if there is no wall separating them (and calls down_action) 
-right_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (False, True) 
+-- Function that returns the position of the cell right if there is no wall separating them (and calls down_action)
+right_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (False, True)
 	|| ((cells maze) !! (width maze * x + y)) == (False, False)
 	then ((x, y + 1) : down_action maze (x, y))
 	else (down_action maze (x, y))
-	
+
 down_action :: Maze -> (Int, Int) -> [(Int, Int)]
--- Function that returns the position of the cell down if there is no wall separating them  
-down_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (True, False) 
+-- Function that returns the position of the cell down if there is no wall separating them
+down_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (True, False)
 	|| ((cells maze) !! (width maze * x + y)) == (False, False)
 	then ((x + 1, y) : [])
 	else []
@@ -136,11 +136,11 @@ down_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (True, Fa
 perfect_dfs :: Maze -> [(Int, Int)] -> (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 -- Function that performs the core dfs algorithm (the second argument list are the actions remaining for the current cell)
 perfect_dfs _ [] _ _ _ = []
-perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos 
+perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 	| curr_pos == goal_pos = (curr_pos : [])
 	| curr_action == prev_pos = perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
-	| perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos == [] = 
-		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos 
+	| perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos == [] =
+		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
 
 showMaze :: Maze -> [(Int,Int)] -> String
@@ -154,15 +154,29 @@ fillboard y x cells solution =
 
 fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
 fill_line sy y x cells solution =
-  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right) ++ (fill_line )] ++
+  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right x y 0 0 cells)
+    ++ (fill_line )] ++
   | y == 0 = "|"
-  | otherwise =
+  | otherwise = ["Hello"]
 
 decide_star :: Int -> Int -> [(Int, Int)] -> String
 decide_star y x solution
-    | solution == [] = "   " --3 spaces because roof is ---
-    | fst (head solution) == x && snd (head solution) == y = " * "
-    | otherwise = decide_star y x (tail solution)
+  | solution == [] = "   " --3 spaces because roof is ---
+  | fst (head solution) == x && snd (head solution) == y = " * "
+  | otherwise = decide_star y x (tail solution)
+
+decide_right :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+decide_right y x curx cury cells
+  | curx == x && cury == y = getwalls
+
+
+decide_right Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+
+getwalls :: (Bool, Bool) -> (String, String)
+getwalls walls = (booltowall (fst walls), booltowall (snd walls))
+
+booltowall :: Bool -> String
+booltowall val = 
 
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
