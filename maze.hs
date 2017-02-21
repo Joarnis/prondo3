@@ -116,7 +116,11 @@ fill_line sy y x cells solution =
   | y == 0 = ""
   | otherwise =
 
-
+decide_star :: Int -> Int -> [(Int, Int)] -> String
+decide_star y x solution
+    | solution == [] = "   " --3 spaces because roof is ---
+    | fst (head solution) == x && snd (head solution) == y = " * "
+    | otherwise = decide_star y x (tail solution)
 
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
