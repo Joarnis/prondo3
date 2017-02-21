@@ -104,27 +104,16 @@ get_actions maze pos = up_action maze pos
 
 up_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
-<<<<<<< HEAD
-up_action maze (x, y) = if x == 0 then [] else
-	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False)
-=======
 up_action maze (x, y) = if x == 0 then (left_action maze (x, y)) else
 	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False)
->>>>>>> 2ba8b40a58fbbb1f34540de03b84d1b1d4437958
 		|| ((cells maze) !! (width maze * (x - 1) + y)) == (False, False)
 	then ((x - 1, y) : left_action maze (x, y))
 	else (left_action maze (x, y))
 
 left_action :: Maze -> (Int, Int) -> [(Int, Int)]
-<<<<<<< HEAD
--- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
-left_action maze (x, y) = if y `mod` (width maze) == 0 then [] else
-	if ((cells maze) !! (width maze * x + y - 1)) == (False, True)
-=======
 -- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
 left_action maze (x, y) = if y `mod` (width maze) == 0 then (right_action maze (x, y)) else
 	if ((cells maze) !! (width maze * x + y - 1)) == (False, True)
->>>>>>> 2ba8b40a58fbbb1f34540de03b84d1b1d4437958
 		|| ((cells maze) !! (width maze * x + y - 1)) == (False, False)
 	then ((x, y - 1) : right_action maze (x, y))
 	else (right_action maze (x, y))
@@ -153,6 +142,22 @@ perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 	| perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos == [] =
 		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
+
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+solveBraid :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
+-- Function that solves a braid maze (instead of a previous node (Int, Int) there is an explored set (Set (Int, Int)))
+solveBraid maze (sx, sy) (gx, gy) = braid_dfs maze (get_actions maze (sx, sy)) (Set.empty) (sx, sy) (gx, gy)
+
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+braid_dfs :: Maze -> [(Int, Int)] -> Set (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
+-- Function that performs the core dfs algorithm for a graph (the second argument list are the actions remaining for the current cell)
+braid_dfs _ [] _ _ _ = []
+braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos 
+	| curr_pos == goal_pos = (curr_pos : [])
+	| Set.member curr_action explored_set = braid_dfs maze rest_actions explored_set curr_pos goal_pos
+	| braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos == [] = 
+		braid_dfs maze rest_actions explored_set curr_pos goal_pos 
+	| otherwise = (curr_pos : braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos)
 
 --showMaze :: Maze -> [(Int,Int)] -> String
 --showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
