@@ -112,8 +112,8 @@ fillboard y x cells solution =
 
 fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
 fill_line sy y x cells solution =
-  | y == sy = [ "|" ++ (decide_star ) ++ (decide_right ) ++ fill_line] ++
-  | y == 0 = ""
+  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right) ++ (fill_line )] ++
+  | y == 0 = "|"
   | otherwise =
 
 decide_star :: Int -> Int -> [(Int, Int)] -> String
