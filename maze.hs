@@ -36,7 +36,7 @@ fill_row :: Int -> [(Bool, Bool)]
 fill_row width = if (width == 1) then [(True, True)] else [(True, True)] ++ (fill_row (width-1) )
 
 
--- Every cell is represented by an integer equal to its position in the list 
+-- Every cell is represented by an integer equal to its position in the list (for the kruskal implementation)
 
 --NEED TO CHECK FOR BUGS WITH SHOWMAZE
 kruskal :: Maze -> Maze
@@ -76,7 +76,7 @@ alter_maze_cell :: Maze -> Int -> Int -> Bool -> Maze
 alter_maze_cell maze pos rw_or_dw new_value = Maze (alter_cell_list (cells maze) pos rw_or_dw new_value) (width maze) (height maze)
 
 alter_cell_list :: [(Bool, Bool)] -> Int -> Int -> Bool -> [(Bool, Bool)]
--- Function that outputs an altered maze cell list (alter_maze_cell helper) 
+-- Function that returns an altered maze cell list (alter_maze_cell helper) 
 alter_cell_list [] _ _ _ = []
 alter_cell_list ((rw, dw) : cells) pos 0 new_value = if pos == 0 
 	then ((new_value, dw) : alter_cell_list cells (pos - 1) 0 new_value)
@@ -92,14 +92,56 @@ maze_from_path maze ((ci, cj) : corr) = if cj == ci + 1
 	then maze_from_path (alter_maze_cell maze ci 0 False) corr
 	else maze_from_path (alter_maze_cell maze ci 1 False) corr
 
---solvePerfect :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
---solvePerfect maze (xs,ys) (xe,ye) =
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+solvePerfect :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
+-- Function that solves a perfect maze
+solvePerfect maze (sx, sy) (gx, gy) = perfect_dfs maze (get_actions maze (sx, sy)) (-1, -1) (sx, sy) (gx, gy)
 
-get_actions Maze -> Int -> [Int]
--- Function that outputs 
-get_actions maze pos = 
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+get_actions :: Maze -> (Int, Int) -> [(Int, Int)]
+-- Function that returns possible actions from a maze cell
+get_actions maze pos = up_action maze pos
 
-perfect_dfs 
+up_action :: Maze -> (Int, Int) -> [(Int, Int)]
+-- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
+up_action maze (x, y) = if x == 0 then [] else
+	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False) 
+		|| ((cells maze) !! (width maze * (x - 1) + y)) == (False, False)
+	then ((x - 1, y) : left_action maze (x, y))
+	else (left_action maze (x, y))
+	
+left_action :: Maze -> (Int, Int) -> [(Int, Int)]
+-- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)  
+left_action maze (x, y) = if y `mod` (width maze) == 0 then [] else
+	if ((cells maze) !! (width maze * x + y - 1)) == (False, True) 
+		|| ((cells maze) !! (width maze * x + y - 1)) == (False, False)
+	then ((x, y - 1) : right_action maze (x, y))
+	else (right_action maze (x, y))
+	
+right_action :: Maze -> (Int, Int) -> [(Int, Int)]
+-- Function that returns the position of the cell right if there is no wall separating them (and calls down_action) 
+right_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (False, True) 
+	|| ((cells maze) !! (width maze * x + y)) == (False, False)
+	then ((x, y + 1) : down_action maze (x, y))
+	else (down_action maze (x, y))
+	
+down_action :: Maze -> (Int, Int) -> [(Int, Int)]
+-- Function that returns the position of the cell down if there is no wall separating them  
+down_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (True, False) 
+	|| ((cells maze) !! (width maze * x + y)) == (False, False)
+	then ((x + 1, y) : [])
+	else []
+
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+perfect_dfs :: Maze -> [(Int, Int)] -> (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
+-- Function that performs the core dfs algorithm (the second argument list are the actions remaining for the current cell)
+perfect_dfs _ [] _ _ _ = []
+perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos 
+	| curr_pos == goal_pos = (curr_pos : [])
+	| curr_action == prev_pos = perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
+	| perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos == [] = 
+		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos 
+	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
 
 --showMaze :: Maze -> [(Int,Int)] -> String
 --showMaze (Maze cells width height) list = (first_line width) ++ (fillboard height width cells)
