@@ -154,6 +154,11 @@ perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
 
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+
+--NEED TO CHECK FOR BUGS WITH SHOWMAZE
+	| curr_pos == goal_pos = (curr_pos : [])
+
 --showMaze :: Maze -> [(Int,Int)] -> String
 --showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
 
