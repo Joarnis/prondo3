@@ -155,9 +155,20 @@ perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
 
 --NEED TO CHECK FOR BUGS WITH SHOWMAZE
+solveBraid :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
+-- Function that solves a braid maze (instead of a previous node (Int, Int) there is an explored set (Set (Int, Int)))
+solveBraid maze (sx, sy) (gx, gy) = braid_dfs maze (get_actions maze (sx, sy)) (Set.empty) (sx, sy) (gx, gy)
 
 --NEED TO CHECK FOR BUGS WITH SHOWMAZE
+braid_dfs :: Maze -> [(Int, Int)] -> Set (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
+-- Function that performs the core dfs algorithm for a graph (the second argument list are the actions remaining for the current cell)
+braid_dfs _ [] _ _ _ = []
+braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos 
 	| curr_pos == goal_pos = (curr_pos : [])
+	| Set.member curr_action explored_set = braid_dfs maze rest_actions explored_set curr_pos goal_pos
+	| braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos == [] = 
+		braid_dfs maze rest_actions explored_set curr_pos goal_pos 
+	| otherwise = (curr_pos : braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos)
 
 --showMaze :: Maze -> [(Int,Int)] -> String
 --showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
