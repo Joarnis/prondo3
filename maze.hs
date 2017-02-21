@@ -104,27 +104,16 @@ get_actions maze pos = up_action maze pos
 
 up_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
-<<<<<<< HEAD
-up_action maze (x, y) = if x == 0 then [] else
-	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False)
-=======
 up_action maze (x, y) = if x == 0 then (left_action maze (x, y)) else
 	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False)
->>>>>>> 2ba8b40a58fbbb1f34540de03b84d1b1d4437958
 		|| ((cells maze) !! (width maze * (x - 1) + y)) == (False, False)
 	then ((x - 1, y) : left_action maze (x, y))
 	else (left_action maze (x, y))
 
 left_action :: Maze -> (Int, Int) -> [(Int, Int)]
-<<<<<<< HEAD
--- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
-left_action maze (x, y) = if y `mod` (width maze) == 0 then [] else
-	if ((cells maze) !! (width maze * x + y - 1)) == (False, True)
-=======
 -- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
 left_action maze (x, y) = if y `mod` (width maze) == 0 then (right_action maze (x, y)) else
 	if ((cells maze) !! (width maze * x + y - 1)) == (False, True)
->>>>>>> 2ba8b40a58fbbb1f34540de03b84d1b1d4437958
 		|| ((cells maze) !! (width maze * x + y - 1)) == (False, False)
 	then ((x, y - 1) : right_action maze (x, y))
 	else (right_action maze (x, y))
