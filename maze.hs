@@ -104,7 +104,7 @@ get_actions maze pos = up_action maze pos
 
 up_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
-up_action maze (x, y) = if x == 0 then [] else
+up_action maze (x, y) = if x == 0 then (left_action maze (x, y)) else
 	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False) 
 		|| ((cells maze) !! (width maze * (x - 1) + y)) == (False, False)
 	then ((x - 1, y) : left_action maze (x, y))
@@ -112,7 +112,7 @@ up_action maze (x, y) = if x == 0 then [] else
 	
 left_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)  
-left_action maze (x, y) = if y `mod` (width maze) == 0 then [] else
+left_action maze (x, y) = if y `mod` (width maze) == 0 then (right_action maze (x, y)) else
 	if ((cells maze) !! (width maze * x + y - 1)) == (False, True) 
 		|| ((cells maze) !! (width maze * x + y - 1)) == (False, False)
 	then ((x, y - 1) : right_action maze (x, y))
@@ -143,28 +143,28 @@ perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos 
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
 
-showMaze :: Maze -> [(Int,Int)] -> String
-showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
+--showMaze :: Maze -> [(Int,Int)] -> String
+--showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
 
 --the recursive function
-fillboard :: Int -> Int -> [(Int, Int)] -> String
-fillboard y x cells solution =
-  if (x == 1) then (fill_line y x cells solution)
-  else (unlines (fill_line y y x cells solution) ) ++ (fillboard y (x-1) cells solution)
+--fillboard :: Int -> Int -> [(Int, Int)] -> String
+--fillboard y x cells solution =
+  --if (x == 1) then (fill_line y x cells solution)
+ -- else (unlines (fill_line y y x cells solution) ) ++ (fillboard y (x-1) cells solution)
 
-fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
-fill_line sy y x cells solution =
-  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right) ++ (fill_line )] ++
-  | y == 0 = "|"
-  | otherwise =
+--fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
+--fill_line sy y x cells solution =
+--  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right) ++ (fill_line )] ++
+--  | y == 0 = "|"
+--  | otherwise =
 
-decide_star :: Int -> Int -> [(Int, Int)] -> String
-decide_star y x solution
-    | solution == [] = "   " --3 spaces because roof is ---
-    | fst (head solution) == x && snd (head solution) == y = " * "
-    | otherwise = decide_star y x (tail solution)
+--decide_star :: Int -> Int -> [(Int, Int)] -> String
+--decide_star y x solution
+ --   | solution == [] = "   " --3 spaces because roof is ---
+ --   | fst (head solution) == x && snd (head solution) == y = " * "
+  --  | otherwise = decide_star y x (tail solution)
 
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
-first_line :: Int -> String
-first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
+--first_line :: Int -> String
+--first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
