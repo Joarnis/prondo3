@@ -152,42 +152,48 @@ solveBraid maze (sx, sy) (gx, gy) = braid_dfs maze (get_actions maze (sx, sy)) (
 braid_dfs :: Maze -> [(Int, Int)] -> Set (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 -- Function that performs the core dfs algorithm for a graph (the second argument list are the actions remaining for the current cell)
 braid_dfs _ [] _ _ _ = []
-braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos 
+braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos
 	| curr_pos == goal_pos = (curr_pos : [])
 	| Set.member curr_action explored_set = braid_dfs maze rest_actions explored_set curr_pos goal_pos
-	| braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos == [] = 
-		braid_dfs maze rest_actions explored_set curr_pos goal_pos 
+	| braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos == [] =
+		braid_dfs maze rest_actions explored_set curr_pos goal_pos
 	| otherwise = (curr_pos : braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos)
 
 --showMaze :: Maze -> [(Int,Int)] -> String
---showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
+--showMaze (Maze cells width height) solution = (first_line width) ++ "\n" ++ (fillboard height width cells solution)
 
 --the recursive function
-fillboard :: Int -> Int -> [(Int, Int)] -> String
-fillboard y x cells solution =
-  if (x == 1) then (fill_line y x cells solution)
-  else (unlines (fill_line y y x cells solution) ) ++ (fillboard y (x-1) cells solution)
+fillboard :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
+fillboard width height y x cells solution =
+  if (x == 1) then (unlines (fill_line width height y y x cells solution))
+  else (unlines (fill_line width height y y x cells solution) ) ++
+  (fillboard width height y (x-1) cells solution)
 
-fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
-fill_line sy y x cells solution =
-  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right x y 0 0 cells)
-    ++ (fill_line )] ++
-  | y == 0 = "|"
-  | otherwise = ["Hello"] --AT
+fill_line :: Int-> Int -> Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
+fill_line width height sy y x cells solution
+  | y == sy =  ["|" ++ (decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
+    ]
+  | y == 0 = ["|"]
+  | otherwise = ["Hello"]
 
+--should be complete from here
 decide_star :: Int -> Int -> [(Int, Int)] -> String
 decide_star y x solution
   | solution == [] = "   " --3 spaces because roof is ---
   | fst (head solution) == x && snd (head solution) == y = " * "
   | otherwise = decide_star y x (tail solution)
 
-decide_right :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
-decide_right y x curx cury cells
-  | curx == x && cury == y = fst (getwalls (head cells))
-  | getnext 
+decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+decide_right width height y x curx cury cells =
+  if (curx == x && cury == y) then fst (getwalls (head cells))
+  else decide_right width height y x (fst (getnext width height curx cury))
+  (snd (getnext width height curx cury)) cells
 
-
-decide_down :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+decide_down width height y x curx cury cells =
+  if (curx == x && cury == y) then snd (getwalls (head cells))
+  else decide_down width height y x (fst (getnext width height curx cury))
+  (snd (getnext width height curx cury)) cells
 
 getwalls :: (Bool, Bool) -> (String, String)
 getwalls walls
@@ -196,7 +202,10 @@ getwalls walls
   | fst walls == False && snd walls == False = ("   ", " ")
   | fst walls == False && snd walls == True = ("   ", "|")
 
+getnext :: Int -> Int -> Int -> Int -> (Int, Int)
+getnext width height x y = if (y+1 >= width) then (x+1, 0) else (x, y+1)
+
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
---first_line :: Int -> String
---first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
+first_line :: Int -> String
+first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
