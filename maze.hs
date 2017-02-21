@@ -95,22 +95,27 @@ maze_from_path maze ((ci, cj) : corr) = if cj == ci + 1
 --solvePerfect :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 --solvePerfect maze (xs,ys) (xe,ye) =
 
-get_actions Maze -> Int -> [Int]
+--get_actions :: Maze -> Int -> [Int]
 -- Function that outputs
-get_actions maze pos =
+--get_actions maze pos =
 
-perfect_dfs
+--perfect_dfs
 
---showMaze :: Maze -> [(Int,Int)] -> String
---showMaze (Maze cells width height) list = (first_line width) ++ (fillboard height width cells list)
+showMaze :: Maze -> [(Int,Int)] -> String
+showMaze (Maze cells width height) list = (first_line width) ++ (fillboard height width cells list)
 
---fillboard :: Int -> Int -> [(Int, Int)] -> String
+fillboard :: Int -> Int -> [(Int, Int)] -> String
 fillboard y x cells list =
-  if (x == 0) then (first_line y)
-  else "+" ++ (fill_line y x cells list) ++ (fillboard y (x-1) cells list)
+  if (x == 1) then (fill_line y x cells list)
+  else (unlines (fill_line y y x cells list) ) ++ (fillboard y (x-1) cells list)
 
---fill_line :: Int -> (String, String)
---fill_line y x cells list =
+fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
+fill_line sy y x cells list =
+  | y == sy = [ "|" ++ decide_star ++ decide_right ++ fill_line] ++  
+  | y == 0 = ""
+  | otherwise =
+
+
 
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
