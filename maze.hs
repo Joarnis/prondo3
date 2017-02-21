@@ -102,16 +102,17 @@ maze_from_path maze ((ci, cj) : corr) = if cj == ci + 1
 --perfect_dfs
 
 showMaze :: Maze -> [(Int,Int)] -> String
-showMaze (Maze cells width height) list = (first_line width) ++ (fillboard height width cells list)
+showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
 
+--the recursive function
 fillboard :: Int -> Int -> [(Int, Int)] -> String
-fillboard y x cells list =
-  if (x == 1) then (fill_line y x cells list)
-  else (unlines (fill_line y y x cells list) ) ++ (fillboard y (x-1) cells list)
+fillboard y x cells solution =
+  if (x == 1) then (fill_line y x cells solution)
+  else (unlines (fill_line y y x cells solution) ) ++ (fillboard y (x-1) cells solution)
 
 fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
-fill_line sy y x cells list =
-  | y == sy = [ "|" ++ decide_star ++ decide_right ++ fill_line] ++  
+fill_line sy y x cells solution =
+  | y == sy = [ "|" ++ (decide_star ) ++ (decide_right ) ++ fill_line] ++
   | y == 0 = ""
   | otherwise =
 
