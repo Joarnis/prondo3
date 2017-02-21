@@ -168,7 +168,7 @@ fill_line sy y x cells solution =
   | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right x y 0 0 cells)
     ++ (fill_line )] ++
   | y == 0 = "|"
-  | otherwise = ["Hello"]
+  | otherwise = ["Hello"] --AT
 
 decide_star :: Int -> Int -> [(Int, Int)] -> String
 decide_star y x solution
@@ -178,16 +178,18 @@ decide_star y x solution
 
 decide_right :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
 decide_right y x curx cury cells
-  | curx == x && cury == y = getwalls
+  | curx == x && cury == y = fst (getwalls (head cells))
+  | getnext 
 
 
-decide_right Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+decide_down :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
 
 getwalls :: (Bool, Bool) -> (String, String)
-getwalls walls = (booltowall (fst walls), booltowall (snd walls))
-
-booltowall :: Bool -> String
-booltowall val =
+getwalls walls
+  | fst walls == True && snd walls == True = ("___", "|")
+  | fst walls == True && snd walls == False = ("___", " ")
+  | fst walls == False && snd walls == False = ("   ", " ")
+  | fst walls == False && snd walls == True = ("   ", "|")
 
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
