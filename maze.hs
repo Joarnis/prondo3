@@ -44,14 +44,14 @@ kruskal :: Maze -> Maze
 kruskal maze = maze_from_path maze (make_path (init_sets (cells maze) 0) (shuffle (init_walls (width maze) (height maze) 0)))
 
 init_sets :: [(Bool, Bool)] -> Int -> [Set Int]
--- Function that returns a list containing a set for each cell of the maze, with a representation of it 
+-- Function that returns a list containing a set for each cell of the maze, with a representation of it
 init_sets [] _ = []
-init_sets (c : cells) curr = (Set.singleton curr : init_sets cells (curr + 1))  
+init_sets (c : cells) curr = (Set.singleton curr : init_sets cells (curr + 1))
 
 init_walls :: Int -> Int -> Int -> [(Int, Int)]
 -- Function that returns a list with all the possible wall positions between two neighboring cells
-init_walls width height curr 
-	| curr `div` width < height - 1 && curr `mod` width < width - 1 = 
+init_walls width height curr
+	| curr `div` width < height - 1 && curr `mod` width < width - 1 =
 		((curr, curr + 1) : (curr, curr + width) : init_walls width height (curr + 1))
 	| curr `div` width < height - 1 = ((curr, curr + width) : init_walls width height (curr + 1))
 	| curr `mod` width < width - 1 = ((curr, curr + 1) : init_walls width height (curr + 1))
@@ -60,7 +60,7 @@ init_walls width height curr
 join_sets :: [Set Int] -> Int -> Set Int -> [Set Int]
 -- Function that replaces a set with a joined set where needed
 join_sets [] _ _ = []
-join_sets (x : xs) k joined_set = if Set.member k joined_set 
+join_sets (x : xs) k joined_set = if Set.member k joined_set
 	then (joined_set : join_sets xs (k + 1) joined_set)
 	else (x : join_sets xs (k + 1) joined_set)
 
@@ -71,14 +71,14 @@ make_path sets ((ci, cj) : walls) = if Set.notMember ci (sets !! cj) && Set.notM
 	then ((ci, cj) : make_path (join_sets sets 0 (Set.union (sets !! ci) (sets !! cj))) walls)
 	else make_path sets walls
 
-alter_maze_cell :: Maze -> Int -> Int -> Bool -> Maze 
+alter_maze_cell :: Maze -> Int -> Int -> Bool -> Maze
 -- Function that alters given maze's cell value (0 is rw, 1 is dw)
 alter_maze_cell maze pos rw_or_dw new_value = Maze (alter_cell_list (cells maze) pos rw_or_dw new_value) (width maze) (height maze)
 
 alter_cell_list :: [(Bool, Bool)] -> Int -> Int -> Bool -> [(Bool, Bool)]
 -- Function that returns an altered maze cell list (alter_maze_cell helper) 
 alter_cell_list [] _ _ _ = []
-alter_cell_list ((rw, dw) : cells) pos 0 new_value = if pos == 0 
+alter_cell_list ((rw, dw) : cells) pos 0 new_value = if pos == 0
 	then ((new_value, dw) : alter_cell_list cells (pos - 1) 0 new_value)
 	else ((rw, dw) : alter_cell_list cells (pos - 1) 0 new_value)
 alter_cell_list ((rw, dw) : cells) pos 1 new_value = if pos == 0
@@ -88,7 +88,7 @@ alter_cell_list ((rw, dw) : cells) pos 1 new_value = if pos == 0
 maze_from_path :: Maze -> [(Int, Int)] -> Maze
 -- Function that applies paths to maze
 maze_from_path maze [] = maze
-maze_from_path maze ((ci, cj) : corr) = if cj == ci + 1 
+maze_from_path maze ((ci, cj) : corr) = if cj == ci + 1
 	then maze_from_path (alter_maze_cell maze ci 0 False) corr
 	else maze_from_path (alter_maze_cell maze ci 1 False) corr
 
@@ -143,13 +143,26 @@ perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos 
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
 
---showMaze :: Maze -> [(Int,Int)] -> String
---showMaze (Maze cells width height) list = (first_line width) ++ (fillboard height width cells)
+showMaze :: Maze -> [(Int,Int)] -> String
+showMaze (Maze cells width height) solution = (first_line width) ++ (fillboard height width cells solution)
 
---fillboard :: Int -> Int -> [(Int, Int)] -> String
---fillboard y x cells = if (height == 1) then "|" ++ (fst fill_line) ++ "\n" ++ "+" ++ (snd fill_line)
+--the recursive function
+fillboard :: Int -> Int -> [(Int, Int)] -> String
+fillboard y x cells solution =
+  if (x == 1) then (fill_line y x cells solution)
+  else (unlines (fill_line y y x cells solution) ) ++ (fillboard y (x-1) cells solution)
 
---fill_line :: Int -> (String, String)
+fill_line :: Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
+fill_line sy y x cells solution =
+  | y == sy = [ "|" ++ (decide_star y x solution) ++ (decide_right) ++ (fill_line )] ++
+  | y == 0 = "|"
+  | otherwise =
+
+decide_star :: Int -> Int -> [(Int, Int)] -> String
+decide_star y x solution
+    | solution == [] = "   " --3 spaces because roof is ---
+    | fst (head solution) == x && snd (head solution) == y = " * "
+    | otherwise = decide_star y x (tail solution)
 
 --mipos thelei putStr allios to unlines
 --test x = putStr (first_line x) -> auto doueuei me \n
