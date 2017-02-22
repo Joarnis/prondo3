@@ -118,7 +118,7 @@ left_action maze (x, y) = if y `mod` (width maze) == 0 then (right_action maze (
 
 right_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell right if there is no wall separating them (and calls down_action)
-right_action maze (x, y) = if fst ((cells maze) !! (width maze * x + y)) == False 
+right_action maze (x, y) = if fst ((cells maze) !! (width maze * x + y)) == False
 	then ((x, y + 1) : down_action maze (x, y))
 	else (down_action maze (x, y))
 
@@ -156,60 +156,69 @@ braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos
 	| otherwise = (curr_pos : braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos)
 
 showMaze :: Maze -> [(Int,Int)] -> String
-showMaze (Maze cells width height) solution = (first_line width) ++ "\n" ++ (fillboard height width cells solution)
+showMaze (Maze cells width height) solution = (first_line width)
+  ++ (fillboard width height 0 cells solution) ++ "\n"
 
 --the recursive function THELEI DOULEIA!!!!!!!!!!!!!!
 --should also be alright
-fillboard :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
-fillboard width height y x cells solution =
-  if (x == 1) then (fst (fill_line width height y y x cells solution)) ++ "\n"
-  ++ (snd (fill_line width height y y x cells solution))
-  else (fst (fill_line width height y y x cells solution)) ++ "\n"
-  ++ (snd (fill_line width height y y x cells solution)) ++
-  (fillboard width height y (x-1) cells solution)
+fillboard :: Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
+fillboard width height y cells solution =
+  if (y == height-1) then (fst (fill_line width height 0 y cells solution)) ++ "\n"
+  ++ (snd (fill_line width height 0 y cells solution))
+  else (fst (fill_line width height 0 y cells solution)) ++ "\n"
+  ++ (snd (fill_line width height 0 y cells solution)) ++ "\n" ++
+  (fillboard width height (y+1) cells solution)
 
-fill_line :: Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> (String, String)
-fill_line width height sy y x cells solution 
-  | y == sy =  ("|" ++ (decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
-    ++ (fst (fill_line width height sy (y-1) x cells solution)),
-    "+" ++ (decide_down width height y x 0 0 cells) ++ "+"
-    ++ (snd (fill_line width height sy (y-1) x cells solution))) 
-  | y == 0 = ("","") 
-  | otherwise = ((decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
-    ++ (fst (fill_line width height sy (y-1) x cells solution)),
-    (decide_down width height y x 0 0 cells) ++ "+"
-    ++ (snd (fill_line width height sy (y-1) x cells solution)))
+fill_line :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> (String, String)
+fill_line width height x y cells solution
+  | x == 0 =  ("|" ++ (decide_star x y solution) ++
+    (decide_right width height 0 y 0 0 cells)
+    ++ (fst (fill_line width height 1 y cells solution)),
+    "+" ++ (decide_down width height 0 y 0 0 cells) ++ "+"
+    ++ (snd (fill_line width height 1 y cells solution)))
+  | x == width = ("","")
+  | otherwise = ((decide_star x y solution) ++ (decide_right width height x y 0 0 cells)
+    ++ (fst (fill_line width height (x+1) y cells solution)),
+    (decide_down width height x y 0 0 cells) ++ "+"
+    ++ (snd (fill_line width height (x+1) y cells solution)))
 
---should be complete from here
+--should be complete from here --DEFINITELY WORKS
 decide_star :: Int -> Int -> [(Int, Int)] -> String
-decide_star y x solution
+decide_star x y solution
   | solution == [] = "   " --3 spaces because roof is ---
   | fst (head solution) == x && snd (head solution) == y = " * "
-  | otherwise = decide_star y x (tail solution)
+  | otherwise = decide_star x y (tail solution)
 
+--is there a right wall? to kalo me 0 0
 decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
-decide_right width height y x curx cury cells =
-  if (curx == x && cury == y) then fst (getwalls (head cells))
-  else decide_right width height y x (fst (getnext width height curx cury))
-  (snd (getnext width height curx cury)) cells
-
-decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
-decide_down width height y x curx cury cells =
+decide_right width height x y curx cury cells =
   if (curx == x && cury == y) then snd (getwalls (head cells))
-  else decide_down width height y x (fst (getnext width height curx cury))
+  else decide_right width height x y (fst (getnext width height curx cury))
   (snd (getnext width height curx cury)) cells
 
+--is there a down wall?
+decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+decide_down width height x y curx cury cells =
+  if (curx == x && cury == y) then fst (getwalls (head cells))
+  else decide_down width height x y (fst (getnext width height curx cury))
+  (snd (getnext width height curx cury)) cells
+
+--simple permutations of walls' existence
 getwalls :: (Bool, Bool) -> (String, String)
 getwalls walls
-  | fst walls == True && snd walls == True = ("___", "|")
-  | fst walls == True && snd walls == False = ("___", " ")
+  | fst walls == True && snd walls == True = ("---", "|")
+  | fst walls == True && snd walls == False = ("---", " ")
   | fst walls == False && snd walls == False = ("   ", " ")
   | fst walls == False && snd walls == True = ("   ", "|")
 
+--doing some mod stuff
 getnext :: Int -> Int -> Int -> Int -> (Int, Int)
-getnext width height x y = if (y+1 >= width) then (x+1, 0) else (x, y+1)
+getnext width height x y = if (x+1 >= width && y+1 <= height-1) then (0, y+1) else (x+1, y)
 
 --mipos thelei putStr allios to unlines
---test x = putStr (first_line x) -> auto doueuei me \n
+--test :: Int -> Int -> String
+test width height = putStr (showMaze (makeMaze width height) [])
+test2 = decide_right 1 1 0 0 0 0 [(True,True)]
+
 first_line :: Int -> String
 first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
