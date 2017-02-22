@@ -65,7 +65,7 @@ join_sets (x : xs) k joined_set = if Set.member k joined_set
 	else (x : join_sets xs (k + 1) joined_set)
 
 make_path :: [Set Int] -> [(Int, Int)] -> [(Int, Int)]
--- Function that executes the core kruskal algorithm part (outputs corridor positions)
+-- Function that executes the core kruskal algorithm part (returns corridor positions)
 make_path sets [] = []
 make_path sets ((ci, cj) : walls) = if Set.notMember ci (sets !! cj) && Set.notMember cj (sets !! ci)
 	then ((ci, cj) : make_path (join_sets sets 0 (Set.union (sets !! ci) (sets !! cj))) walls)
@@ -105,30 +105,26 @@ get_actions maze pos = up_action maze pos
 up_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
 up_action maze (x, y) = if x == 0 then (left_action maze (x, y)) else
-	if ((cells maze) !! (width maze * (x - 1) + y)) == (True, False)
-		|| ((cells maze) !! (width maze * (x - 1) + y)) == (False, False)
+	if snd ((cells maze) !! (width maze * (x - 1) + y)) == False
 	then ((x - 1, y) : left_action maze (x, y))
 	else (left_action maze (x, y))
 
 left_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
 left_action maze (x, y) = if y `mod` (width maze) == 0 then (right_action maze (x, y)) else
-	if ((cells maze) !! (width maze * x + y - 1)) == (False, True)
-		|| ((cells maze) !! (width maze * x + y - 1)) == (False, False)
+	if fst ((cells maze) !! (width maze * x + y - 1)) == False
 	then ((x, y - 1) : right_action maze (x, y))
 	else (right_action maze (x, y))
 
 right_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell right if there is no wall separating them (and calls down_action)
-right_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (False, True)
-	|| ((cells maze) !! (width maze * x + y)) == (False, False)
+right_action maze (x, y) = if fst ((cells maze) !! (width maze * x + y)) == False 
 	then ((x, y + 1) : down_action maze (x, y))
 	else (down_action maze (x, y))
 
 down_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell down if there is no wall separating them
-down_action maze (x, y) = if ((cells maze) !! (width maze * x + y)) == (True, False)
-	|| ((cells maze) !! (width maze * x + y)) == (False, False)
+down_action maze (x, y) = if snd ((cells maze) !! (width maze * x + y)) == False
 	then ((x + 1, y) : [])
 	else []
 
