@@ -164,17 +164,17 @@ fillboard :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> Strin
 fillboard width height y x cells solution =
   if (x == 1) then (fst (fill_line width height y y x cells solution)) ++ "\n"
   ++ (snd (fill_line width height y y x cells solution))
-  else (fst (fill_line width height y y x cells solution) ++ "\n"
+  else (fst (fill_line width height y y x cells solution)) ++ "\n"
   ++ (snd (fill_line width height y y x cells solution)) ++
   (fillboard width height y (x-1) cells solution)
 
 fill_line :: Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> (String, String)
-fill_line width height sy y x cells solution
+fill_line width height sy y x cells solution 
   | y == sy =  ("|" ++ (decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
     ++ (fst (fill_line width height sy (y-1) x cells solution)),
     "+" ++ (decide_down width height y x 0 0 cells) ++ "+"
-    ++ (snd (fill_line width height sy (y-1) x cells solution)))
-  | y == 0 = ("","")
+    ++ (snd (fill_line width height sy (y-1) x cells solution))) 
+  | y == 0 = ("","") 
   | otherwise = ((decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
     ++ (fst (fill_line width height sy (y-1) x cells solution)),
     (decide_down width height y x 0 0 cells) ++ "+"
