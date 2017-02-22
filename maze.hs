@@ -159,22 +159,30 @@ braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos
 		braid_dfs maze rest_actions explored_set curr_pos goal_pos
 	| otherwise = (curr_pos : braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos)
 
---showMaze :: Maze -> [(Int,Int)] -> String
---showMaze (Maze cells width height) solution = (first_line width) ++ "\n" ++ (fillboard height width cells solution)
+showMaze :: Maze -> [(Int,Int)] -> String
+showMaze (Maze cells width height) solution = (first_line width) ++ "\n" ++ (fillboard height width cells solution)
 
---the recursive function
+--the recursive function THELEI DOULEIA!!!!!!!!!!!!!!
+--should also be alright
 fillboard :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
 fillboard width height y x cells solution =
-  if (x == 1) then (unlines (fill_line width height y y x cells solution))
-  else (unlines (fill_line width height y y x cells solution) ) ++
+  if (x == 1) then (fst (fill_line width height y y x cells solution)) ++ "\n"
+  ++ (snd (fill_line width height y y x cells solution))
+  else (fst (fill_line width height y y x cells solution) ++ "\n"
+  ++ (snd (fill_line width height y y x cells solution)) ++
   (fillboard width height y (x-1) cells solution)
 
-fill_line :: Int-> Int -> Int -> Int -> Int -> [(Bool,Bool)] -> [(Int, Int)] -> [String]
+fill_line :: Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> (String, String)
 fill_line width height sy y x cells solution
-  | y == sy =  ["|" ++ (decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
-    ]
-  | y == 0 = ["|"]
-  | otherwise = ["Hello"]
+  | y == sy =  ("|" ++ (decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
+    ++ (fst (fill_line width height sy (y-1) x cells solution)),
+    "+" ++ (decide_down width height y x 0 0 cells) ++ "+"
+    ++ (snd (fill_line width height sy (y-1) x cells solution)))
+  | y == 0 = ("","")
+  | otherwise = ((decide_star y x solution) ++ (decide_right width height y x 0 0 cells)
+    ++ (fst (fill_line width height sy (y-1) x cells solution)),
+    (decide_down width height y x 0 0 cells) ++ "+"
+    ++ (snd (fill_line width height sy (y-1) x cells solution)))
 
 --should be complete from here
 decide_star :: Int -> Int -> [(Int, Int)] -> String
