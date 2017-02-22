@@ -192,24 +192,24 @@ decide_star x y solution
 --is there a right wall? to kalo me 0 0
 decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
 decide_right width height x y curx cury cells =
-  if (curx == x && cury == y) then snd (getwalls (head cells))
+  if (curx == x && cury == y) then fst (getwalls (head cells))
   else decide_right width height x y (fst (getnext width height curx cury))
   (snd (getnext width height curx cury)) cells
 
 --is there a down wall?
 decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
 decide_down width height x y curx cury cells =
-  if (curx == x && cury == y) then fst (getwalls (head cells))
+  if (curx == x && cury == y) then snd (getwalls (head cells))
   else decide_down width height x y (fst (getnext width height curx cury))
   (snd (getnext width height curx cury)) cells
 
 --simple permutations of walls' existence
 getwalls :: (Bool, Bool) -> (String, String)
 getwalls walls
-  | fst walls == True && snd walls == True = ("---", "|")
-  | fst walls == True && snd walls == False = ("---", " ")
-  | fst walls == False && snd walls == False = ("   ", " ")
-  | fst walls == False && snd walls == True = ("   ", "|")
+  | fst walls == True && snd walls == True = ("|", "---")
+  | fst walls == True && snd walls == False = ("|", "   ")
+  | fst walls == False && snd walls == False = (" ", "   ")
+  | fst walls == False && snd walls == True = (" ", "---")
 
 --doing some mod stuff
 getnext :: Int -> Int -> Int -> Int -> (Int, Int)
@@ -219,6 +219,15 @@ getnext width height x y = if (x+1 >= width && y+1 <= height-1) then (0, y+1) el
 --test :: Int -> Int -> String
 test width height = putStr (showMaze (makeMaze width height) [])
 test2 = decide_right 1 1 0 0 0 0 [(True,True)]
+test3 = (fillboard 4 3 0 [
+  (False, True), (False, False),
+  (False, False), (True, False),
+  (False, False), (True, False),
+  (True,True), (True,False),
+  (True, True), (True, False),
+  (True, True), (False, True),
+  (True, True), (True, True)] []) ++ "\n"
+test4 = putStr (showMaze (Maze [(True, True), (True, True), (True, True), (False, True)] 2 2) [])
 
 first_line :: Int -> String
 first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
