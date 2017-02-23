@@ -182,14 +182,14 @@ fill_line width height x y cells solution
     (decide_down width height x y 0 0 cells) ++ "+"
     ++ (snd (fill_line width height (x+1) y cells solution)))
 
---should be complete from here --DEFINITELY WORKS
+--is there a star?
 decide_star :: Int -> Int -> [(Int, Int)] -> String
 decide_star x y solution
   | solution == [] = "   " --3 spaces because roof is ---
   | fst (head solution) == x && snd (head solution) == y = " * "
   | otherwise = decide_star x y (tail solution)
 
---is there a right wall? to kalo me 0 0
+--is there a right wall?
 decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
 decide_right width height x y curx cury cells =
   if (curx == x && cury == y) then fst (getwalls (head cells))
@@ -228,6 +228,7 @@ test3 = (fillboard 4 3 0 [
   (True, True), (False, True),
   (True, True), (True, True)] []) ++ "\n"
 test4 = putStr (showMaze (Maze [(True, True), (True, True), (True, True), (False, True)] 2 2) [])
+test_kr = putStr (showMaze (kruskal (makeMaze 4 3)) [])
 
 first_line :: Int -> String
 first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
