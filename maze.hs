@@ -159,7 +159,7 @@ showMaze :: Maze -> [(Int,Int)] -> String
 showMaze (Maze cells width height) solution = (first_line width)
   ++ (fillboard width height 0 cells solution) ++ "\n"
 
---the recursive function THELEI DOULEIA!!!!!!!!!!!!!!
+--the recursive function
 --should also be alright
 fillboard :: Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
 fillboard width height y cells solution =
@@ -194,14 +194,14 @@ decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> Stri
 decide_right width height x y curx cury cells =
   if (curx == x && cury == y) then fst (getwalls (head cells))
   else decide_right width height x y (fst (getnext width height curx cury))
-  (snd (getnext width height curx cury)) cells
+  (snd (getnext width height curx cury)) (tail cells)
 
 --is there a down wall?
 decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
 decide_down width height x y curx cury cells =
   if (curx == x && cury == y) then snd (getwalls (head cells))
   else decide_down width height x y (fst (getnext width height curx cury))
-  (snd (getnext width height curx cury)) cells
+  (snd (getnext width height curx cury)) (tail cells)
 
 --simple permutations of walls' existence
 getwalls :: (Bool, Bool) -> (String, String)
