@@ -186,7 +186,7 @@ fill_line width height x y cells solution
 decide_star :: Int -> Int -> [(Int, Int)] -> String
 decide_star x y solution
   | solution == [] = "   " --3 spaces because roof is ---
-  | fst (head solution) == x && snd (head solution) == y = " * "
+  | snd (head solution) == x && fst (head solution) == y = " * "
   | otherwise = decide_star x y (tail solution)
 
 --is there a right wall?
