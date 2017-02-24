@@ -31,10 +31,10 @@ makeMaze width height = Maze (fill_cell_list width height) width height
 
 fill_cell_list :: Int -> Int -> [(Bool, Bool)]
 fill_cell_list width height = if (height == 1) then (fill_row width) else (fill_row width) ++
-    (fill_cell_list width (height-1))
+    (fill_cell_list width (height - 1))
 
 fill_row :: Int -> [(Bool, Bool)]
-fill_row width = if (width == 1) then [(True, True)] else [(True, True)] ++ (fill_row (width-1) )
+fill_row width = if (width == 1) then [(True, True)] else [(True, True)] ++ (fill_row (width - 1) )
 
 -- kruskal --
 
@@ -217,7 +217,7 @@ showMaze (Maze cells width height) solution = (first_line width)
 fillboard :: Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
 --the recursive function
 fillboard width height y cells solution =
-	if (y == height-1) then (fst (fill_line width height 0 y cells solution)) ++ "\n"
+	if (y == height - 1) then (fst (fill_line width height 0 y cells solution)) ++ "\n"
 		++ (snd (fill_line width height 0 y cells solution))
 	else (fst (fill_line width height 0 y cells solution)) ++ "\n"
 		++ (snd (fill_line width height 0 y cells solution)) ++ "\n" ++
@@ -232,9 +232,9 @@ fill_line width height x y cells solution
 		++ (snd (fill_line width height 1 y cells solution)))
 	| x == width = ("","")
 	| otherwise = ((decide_star x y solution) ++ (decide_right width height x y 0 0 cells)
-		++ (fst (fill_line width height (x+1) y cells solution)),
+		++ (fst (fill_line width height (x + 1) y cells solution)),
 		(decide_down width height x y 0 0 cells) ++ "+"
-		++ (snd (fill_line width height (x+1) y cells solution)))
+		++ (snd (fill_line width height (x + 1) y cells solution)))
 
 decide_star :: Int -> Int -> [(Int, Int)] -> String
 --is there a star?
@@ -267,7 +267,7 @@ getwalls walls
 
 getnext :: Int -> Int -> Int -> Int -> (Int, Int)
 --doing some mod stuff
-getnext width height x y = if (x+1 >= width && y+1 <= height-1) then (0, y+1) else (x+1, y)
+getnext width height x y = if (x + 1 >= width && y + 1 <= height - 1) then (0, y + 1) else (x + 1, y)
 
 
 --Afta feugoun etsi??
@@ -287,4 +287,4 @@ test4 = putStr (showMaze (Maze [(True, True), (True, True), (True, True), (False
 test_kr = putStr (showMaze (kruskal (makeMaze 4 3)) [])
 
 first_line :: Int -> String
-first_line x = if (x== 0) then "+\n" else "+---" ++ (first_line (x-1))
+first_line x = if (x == 0) then "+\n" else "+---" ++ (first_line (x - 1))
