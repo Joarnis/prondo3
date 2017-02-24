@@ -38,7 +38,7 @@ fill_row width = if (width == 1) then [(True, True)] else [(True, True)] ++ (fil
 
 -- kruskal --
 
--- Every cell is represented by an integer equal to its position in the list (for the kruskal implementation)
+-- Every cell is represented by an integer equal to its position in the list (only for the kruskal algorithm implementation)
 kruskal :: Maze -> Maze
 -- Function that executes the custom kruskal algorithm
 kruskal maze = maze_from_path maze (make_path (init_sets (cells maze) 0) (shuffle (init_walls (width maze) (height maze) 0)))
