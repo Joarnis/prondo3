@@ -3,6 +3,7 @@ import System.IO.Unsafe
 import Data.Set (Set)
 import qualified Data.Set as Set
 
+-- Maze data structure
 data Maze = Maze { cells :: [(Bool, Bool)]  -- [(rightWall, downWall)]
                  , width :: Int
                  , height :: Int
@@ -35,10 +36,9 @@ fill_cell_list width height = if (height == 1) then (fill_row width) else (fill_
 fill_row :: Int -> [(Bool, Bool)]
 fill_row width = if (width == 1) then [(True, True)] else [(True, True)] ++ (fill_row (width-1) )
 
+-- kruskal --
 
 -- Every cell is represented by an integer equal to its position in the list (for the kruskal implementation)
-
---NEED TO CHECK FOR BUGS WITH SHOWMAZE
 kruskal :: Maze -> Maze
 -- Function that executes the custom kruskal algorithm
 kruskal maze = maze_from_path maze (make_path (init_sets (cells maze) 0) (shuffle (init_walls (width maze) (height maze) 0)))
@@ -92,35 +92,35 @@ maze_from_path maze ((ci, cj) : corr) = if cj == ci + 1
 	then maze_from_path (alter_maze_cell maze ci 0 False) corr
 	else maze_from_path (alter_maze_cell maze ci 1 False) corr
 
---NEED TO CHECK FOR BUGS WITH SHOWMAZE
+-- solvePerfect --
+
 solvePerfect :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 -- Function that solves a perfect maze
 solvePerfect maze (sx, sy) (gx, gy) = perfect_dfs maze (get_actions maze (sx, sy)) (-1, -1) (sx, sy) (gx, gy)
 
---NEED TO CHECK FOR BUGS WITH SHOWMAZE
 get_actions :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns possible actions from a maze cell
 get_actions maze pos = up_action maze pos
 
 up_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell up if there is no wall separating them (and calls left_action)
-up_action maze (x, y) = if x == 0 then (left_action maze (x, y)) else
+up_action maze (x, y) = if x == 0 then left_action maze (x, y) else
 	if snd ((cells maze) !! (width maze * (x - 1) + y)) == False
 	then ((x - 1, y) : left_action maze (x, y))
-	else (left_action maze (x, y))
+	else left_action maze (x, y)
 
 left_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell left if there is no wall separating them (and calls right_action)
-left_action maze (x, y) = if y `mod` (width maze) == 0 then (right_action maze (x, y)) else
+left_action maze (x, y) = if y == 0 then right_action maze (x, y) else
 	if fst ((cells maze) !! (width maze * x + y - 1)) == False
 	then ((x, y - 1) : right_action maze (x, y))
-	else (right_action maze (x, y))
+	else right_action maze (x, y)
 
 right_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell right if there is no wall separating them (and calls down_action)
 right_action maze (x, y) = if fst ((cells maze) !! (width maze * x + y)) == False
 	then ((x, y + 1) : down_action maze (x, y))
-	else (down_action maze (x, y))
+	else down_action maze (x, y)
 
 down_action :: Maze -> (Int, Int) -> [(Int, Int)]
 -- Function that returns the position of the cell down if there is no wall separating them
@@ -128,93 +128,149 @@ down_action maze (x, y) = if snd ((cells maze) !! (width maze * x + y)) == False
 	then ((x + 1, y) : [])
 	else []
 
---NEED TO CHECK FOR BUGS WITH SHOWMAZE
 perfect_dfs :: Maze -> [(Int, Int)] -> (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 -- Function that performs the core dfs algorithm (the second argument list are the actions remaining for the current cell)
+perfect_dfs _ [] _ _ _ = []
 perfect_dfs maze (curr_action : rest_actions) prev_pos curr_pos goal_pos
 	| curr_pos == goal_pos = (curr_pos : [])
-	| (curr_action : rest_actions) == [] = []
 	| curr_action == prev_pos = perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
 	| perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos == [] =
 		perfect_dfs maze rest_actions prev_pos curr_pos goal_pos
 	| otherwise = (curr_pos : perfect_dfs maze (get_actions maze curr_action) curr_pos curr_action goal_pos)
+	
+-- braid --
 
---NEED TO CHECK FOR BUGS WITH SHOWMAZE
+braid :: Maze -> Maze
+-- Function that takes a kruskal maze and returns a braid one
+braid maze = braidify maze (0, 0)
+
+braidify :: Maze -> (Int, Int) -> Maze
+-- Function that executes the core braid algorithm
+braidify maze (-1, -1) = maze
+braidify maze (x, y) = if length (get_actions maze (x, y)) == 1
+	then braidify (open_path maze (x, y)) (next_cell maze (x, y))
+	else braidify maze (next_cell maze (x, y))
+
+next_cell :: Maze -> (Int, Int) -> (Int, Int)
+-- Function that returns the next cell of the maze (left to right, up to down) (returns (-1, -1) if there is no next cell)
+next_cell maze (x, y)
+	| x == height maze - 1 && y == width maze - 1 = (-1, -1)
+	| y == width maze -1 = (x + 1, 0)
+	| otherwise = (x, y + 1)
+
+open_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to a neighboring cell for braid maze (same structure as get_actions)
+open_path maze pos = up_path maze pos
+
+up_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to the cell up if there is a wall separating them
+up_path maze (x, y) = if x == 0 then left_path maze (x, y) else
+	if snd ((cells maze) !! (width maze * (x - 1) + y)) == True
+	then alter_maze_cell maze (width maze * (x - 1) + y) 1 False
+	else left_path maze (x, y)
+
+left_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to the cell left if there is a wall separating them
+left_path maze (x, y) = if y == 0 then right_path maze (x, y) else
+	if fst ((cells maze) !! (width maze * x + y - 1)) == True
+	then alter_maze_cell maze (width maze * x + y - 1) 0 False
+	else right_path maze (x, y)
+
+right_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to the cell right if there is a wall separating them
+right_path maze (x, y) = if y == width maze then down_path maze (x, y) else 
+	if fst ((cells maze) !! (width maze * x + y)) == True
+	then alter_maze_cell maze (width maze * x + y) 0 False
+	else down_path maze (x, y)
+
+down_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to the cell down if there is a wall separating them
+down_path maze (x, y) = if x == height maze then maze else 
+	if snd ((cells maze) !! (width maze * x + y)) == True
+	then alter_maze_cell maze (width maze * x + y) 1 False
+	else maze	
+	
+-- solveBraid --
+
 solveBraid :: Maze -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 -- Function that solves a braid maze (instead of a previous node (Int, Int) there is an explored set (Set (Int, Int)))
 solveBraid maze (sx, sy) (gx, gy) = braid_dfs maze (get_actions maze (sx, sy)) (Set.empty) (sx, sy) (gx, gy)
 
---NEED TO CHECK FOR BUGS WITH SHOWMAZE
 braid_dfs :: Maze -> [(Int, Int)] -> Set (Int, Int) -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
 -- Function that performs the core dfs algorithm for a graph (the second argument list are the actions remaining for the current cell)
+braid_dfs _ [] _ _ _ = []
 braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos
 	| curr_pos == goal_pos = (curr_pos : [])
-	| (curr_action : rest_actions) == [] = []
 	| Set.member curr_action explored_set = braid_dfs maze rest_actions explored_set curr_pos goal_pos
 	| braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos == [] =
 		braid_dfs maze rest_actions explored_set curr_pos goal_pos
 	| otherwise = (curr_pos : braid_dfs maze (get_actions maze curr_action) (Set.insert curr_pos explored_set) curr_action goal_pos)
 
-showMaze :: Maze -> [(Int,Int)] -> String
-showMaze (Maze cells width height) solution = (first_line width)
-  ++ (fillboard width height 0 cells solution) ++ "\n"
+-- showMaze --
 
---the recursive function
+showMaze :: Maze -> [(Int,Int)] -> String
+-- Function that prints the solution to a give maze
+showMaze (Maze cells width height) solution = (first_line width)
+	++ (fillboard width height 0 cells solution) ++ "\n"
+
 --should also be alright
 fillboard :: Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
+--the recursive function
 fillboard width height y cells solution =
-  if (y == height-1) then (fst (fill_line width height 0 y cells solution)) ++ "\n"
-  ++ (snd (fill_line width height 0 y cells solution))
-  else (fst (fill_line width height 0 y cells solution)) ++ "\n"
-  ++ (snd (fill_line width height 0 y cells solution)) ++ "\n" ++
-  (fillboard width height (y+1) cells solution)
+	if (y == height-1) then (fst (fill_line width height 0 y cells solution)) ++ "\n"
+		++ (snd (fill_line width height 0 y cells solution))
+	else (fst (fill_line width height 0 y cells solution)) ++ "\n"
+		++ (snd (fill_line width height 0 y cells solution)) ++ "\n" ++
+		(fillboard width height (y+1) cells solution)
 
 fill_line :: Int -> Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> (String, String)
 fill_line width height x y cells solution
-  | x == 0 =  ("|" ++ (decide_star x y solution) ++
-    (decide_right width height 0 y 0 0 cells)
-    ++ (fst (fill_line width height 1 y cells solution)),
-    "+" ++ (decide_down width height 0 y 0 0 cells) ++ "+"
-    ++ (snd (fill_line width height 1 y cells solution)))
-  | x == width = ("","")
-  | otherwise = ((decide_star x y solution) ++ (decide_right width height x y 0 0 cells)
-    ++ (fst (fill_line width height (x+1) y cells solution)),
-    (decide_down width height x y 0 0 cells) ++ "+"
-    ++ (snd (fill_line width height (x+1) y cells solution)))
+	| x == 0 =  ("|" ++ (decide_star x y solution) ++
+		(decide_right width height 0 y 0 0 cells)
+		++ (fst (fill_line width height 1 y cells solution)),
+		"+" ++ (decide_down width height 0 y 0 0 cells) ++ "+"
+		++ (snd (fill_line width height 1 y cells solution)))
+	| x == width = ("","")
+	| otherwise = ((decide_star x y solution) ++ (decide_right width height x y 0 0 cells)
+		++ (fst (fill_line width height (x+1) y cells solution)),
+		(decide_down width height x y 0 0 cells) ++ "+"
+		++ (snd (fill_line width height (x+1) y cells solution)))
 
---is there a star?
 decide_star :: Int -> Int -> [(Int, Int)] -> String
+--is there a star?
 decide_star x y solution
-  | solution == [] = "   " --3 spaces because roof is ---
-  | snd (head solution) == x && fst (head solution) == y = " * "
-  | otherwise = decide_star x y (tail solution)
+	| solution == [] = "   " --3 spaces because roof is ---
+	| snd (head solution) == x && fst (head solution) == y = " * "
+	| otherwise = decide_star x y (tail solution)
 
---is there a right wall?
 decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+--is there a right wall?
 decide_right width height x y curx cury cells =
-  if (curx == x && cury == y) then fst (getwalls (head cells))
-  else decide_right width height x y (fst (getnext width height curx cury))
-  (snd (getnext width height curx cury)) (tail cells)
+	if (curx == x && cury == y) then fst (getwalls (head cells))
+	else decide_right width height x y (fst (getnext width height curx cury))
+		(snd (getnext width height curx cury)) (tail cells)
 
---is there a down wall?
 decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
+--is there a down wall?
 decide_down width height x y curx cury cells =
-  if (curx == x && cury == y) then snd (getwalls (head cells))
-  else decide_down width height x y (fst (getnext width height curx cury))
-  (snd (getnext width height curx cury)) (tail cells)
+	if (curx == x && cury == y) then snd (getwalls (head cells))
+	else decide_down width height x y (fst (getnext width height curx cury))
+		(snd (getnext width height curx cury)) (tail cells)
 
---simple permutations of walls' existence
 getwalls :: (Bool, Bool) -> (String, String)
+--simple permutations of walls' existence
 getwalls walls
-  | fst walls == True && snd walls == True = ("|", "---")
-  | fst walls == True && snd walls == False = ("|", "   ")
-  | fst walls == False && snd walls == False = (" ", "   ")
-  | fst walls == False && snd walls == True = (" ", "---")
+	| fst walls == True && snd walls == True = ("|", "---")
+	| fst walls == True && snd walls == False = ("|", "   ")
+	| fst walls == False && snd walls == False = (" ", "   ")
+	| fst walls == False && snd walls == True = (" ", "---")
 
---doing some mod stuff
 getnext :: Int -> Int -> Int -> Int -> (Int, Int)
+--doing some mod stuff
 getnext width height x y = if (x+1 >= width && y+1 <= height-1) then (0, y+1) else (x+1, y)
 
+
+--Afta feugoun etsi??
 --mipos thelei putStr allios to unlines
 --test :: Int -> Int -> String
 test width height = putStr (showMaze (makeMaze width height) [])
