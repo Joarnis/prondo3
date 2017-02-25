@@ -159,9 +159,23 @@ next_cell maze (x, y)
 	| otherwise = (x, y + 1)
 
 open_path :: Maze -> (Int, Int) -> Maze
--- Function that opens a path to a neighboring cell for braid maze (same structure as get_actions)
-open_path maze pos = up_path maze pos
+-- Function that opens a path to a neighboring cell for braid maze (same structure as get_actions different order)
+open_path maze pos = right_path maze pos
 
+right_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to the cell right if there is a wall separating them
+right_path maze (x, y) = if y == width maze - 1 then down_path maze (x, y) else 
+	if fst ((cells maze) !! (width maze * x + y)) == True
+	then alter_maze_cell maze (width maze * x + y) 0 False
+	else down_path maze (x, y)
+	
+down_path :: Maze -> (Int, Int) -> Maze
+-- Function that opens a path to the cell down if there is a wall separating them
+down_path maze (x, y) = if x == height maze - 1 then up_path maze (x, y) else 
+	if snd ((cells maze) !! (width maze * x + y)) == True
+	then alter_maze_cell maze (width maze * x + y) 1 False
+	else up_path maze (x, y)	
+	
 up_path :: Maze -> (Int, Int) -> Maze
 -- Function that opens a path to the cell up if there is a wall separating them
 up_path maze (x, y) = if x == 0 then left_path maze (x, y) else
@@ -171,24 +185,10 @@ up_path maze (x, y) = if x == 0 then left_path maze (x, y) else
 
 left_path :: Maze -> (Int, Int) -> Maze
 -- Function that opens a path to the cell left if there is a wall separating them
-left_path maze (x, y) = if y == 0 then right_path maze (x, y) else
+left_path maze (x, y) = if y == 0 then maze else
 	if fst ((cells maze) !! (width maze * x + y - 1)) == True
 	then alter_maze_cell maze (width maze * x + y - 1) 0 False
-	else right_path maze (x, y)
-
-right_path :: Maze -> (Int, Int) -> Maze
--- Function that opens a path to the cell right if there is a wall separating them
-right_path maze (x, y) = if y == width maze then down_path maze (x, y) else 
-	if fst ((cells maze) !! (width maze * x + y)) == True
-	then alter_maze_cell maze (width maze * x + y) 0 False
-	else down_path maze (x, y)
-
-down_path :: Maze -> (Int, Int) -> Maze
--- Function that opens a path to the cell down if there is a wall separating them
-down_path maze (x, y) = if x == height maze then maze else 
-	if snd ((cells maze) !! (width maze * x + y)) == True
-	then alter_maze_cell maze (width maze * x + y) 1 False
-	else maze	
+	else maze
 	
 -- solveBraid --
 
