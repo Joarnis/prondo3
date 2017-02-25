@@ -239,28 +239,28 @@ fill_line width height x y cells solution
 		++ (snd (fill_line width height (x + 1) y cells solution)))
 
 decide_star :: Int -> Int -> [(Int, Int)] -> String
---is there a star?
+--Function that decides if there is a star and returns the proper string
 decide_star x y solution
 	| solution == [] = "   " --3 spaces because roof is "---"
 	| snd (head solution) == x && fst (head solution) == y = " * "
 	| otherwise = decide_star x y (tail solution)
 
 decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
---is there a right wall?
+--Function that decides if there is a right wall and returns the proper string
 decide_right width height x y curx cury cells =
 	if (curx == x && cury == y) then fst (getwalls (head cells))
 	else decide_right width height x y (fst (getnext width height curx cury))
 		(snd (getnext width height curx cury)) (tail cells)
 
 decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
---is there a down wall?
+--Function that decides if there is a down wall and returns the proper string
 decide_down width height x y curx cury cells =
 	if (curx == x && cury == y) then snd (getwalls (head cells))
 	else decide_down width height x y (fst (getnext width height curx cury))
 		(snd (getnext width height curx cury)) (tail cells)
 
 getwalls :: (Bool, Bool) -> (String, String)
---simple permutations of walls' existence
+--Function that returns the permutations of walls' existence
 getwalls walls
 	| fst walls == True && snd walls == True = ("|", "---")
 	| fst walls == True && snd walls == False = ("|", "   ")
