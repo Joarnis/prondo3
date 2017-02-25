@@ -211,13 +211,12 @@ braid_dfs maze (curr_action : rest_actions) explored_set curr_pos goal_pos
 -- showMaze --
 
 showMaze :: Maze -> [(Int,Int)] -> String
--- Function that prints the solution to a give maze
+-- Function that prints the solution to a given maze
 showMaze (Maze cells width height) solution = (first_line width)
 	++ (fillboard width height 0 cells solution) ++ "\n"
 
---should also be alright
 fillboard :: Int -> Int -> Int -> [(Bool, Bool)] -> [(Int, Int)] -> String
---the recursive function
+-- The recursive function
 fillboard width height y cells solution =
 	if (y == height - 1) then (fst (fill_line width height 0 y cells solution)) ++ "\n"
 		++ (snd (fill_line width height 0 y cells solution))
@@ -239,28 +238,28 @@ fill_line width height x y cells solution
 		++ (snd (fill_line width height (x + 1) y cells solution)))
 
 decide_star :: Int -> Int -> [(Int, Int)] -> String
---Function that decides if there is a star and returns the proper string
+-- Function that decides if there is a star and returns the proper string
 decide_star x y solution
 	| solution == [] = "   " --3 spaces because roof is "---"
 	| snd (head solution) == x && fst (head solution) == y = " * "
 	| otherwise = decide_star x y (tail solution)
 
 decide_right :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
---Function that decides if there is a right wall and returns the proper string
+-- Function that decides if there is a right wall and returns the proper string
 decide_right width height x y curx cury cells =
 	if (curx == x && cury == y) then fst (getwalls (head cells))
 	else decide_right width height x y (fst (getnext width height curx cury))
 		(snd (getnext width height curx cury)) (tail cells)
 
 decide_down :: Int -> Int -> Int -> Int -> Int -> Int -> [(Bool, Bool)] -> String
---Function that decides if there is a down wall and returns the proper string
+-- Function that decides if there is a down wall and returns the proper string
 decide_down width height x y curx cury cells =
 	if (curx == x && cury == y) then snd (getwalls (head cells))
 	else decide_down width height x y (fst (getnext width height curx cury))
 		(snd (getnext width height curx cury)) (tail cells)
 
 getwalls :: (Bool, Bool) -> (String, String)
---Function that returns the permutations of walls' existence
+-- Function that returns the permutations of walls' existence
 getwalls walls
 	| fst walls == True && snd walls == True = ("|", "---")
 	| fst walls == True && snd walls == False = ("|", "   ")
@@ -268,7 +267,7 @@ getwalls walls
 	| fst walls == False && snd walls == True = (" ", "---")
 
 getnext :: Int -> Int -> Int -> Int -> (Int, Int)
---doing some mod stuff
+-- Function that returns the next cell of the maze (different arguments that next_cell)
 getnext width height x y = if (x + 1 >= width && y + 1 <= height - 1) then (0, y + 1) else (x + 1, y)
 
 first_line :: Int -> String
